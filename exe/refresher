@@ -40,5 +40,23 @@ loop do
   case command
   when "exit", "quit"
     exit
+  when "me"
+    data = {}
+    headers = { "content-type": "application/json", "authorization": "Bearer #{access_token}" }
+    res = Net::HTTP.post(URI("http://localhost:3000/me"), data.to_json, headers)
+
+    case res
+    when Net::HTTPSuccess
+      data = JSON.parse(res.body)
+      puts data
+      puts
+    when Net::HTTPClientError, Net::HTTPServerError
+      data = JSON.parse(res.body)
+      puts data["error"]
+      puts
+    else
+      puts "Unknown error: #{res.inspect}"
+      puts
+    end
   end
 end

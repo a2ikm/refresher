@@ -8,4 +8,13 @@ class AccessToken < ApplicationRecord
       retry
     end
   end
+
+  def self.verify(token)
+    access_token = AccessToken.find_by(token: token)
+    if access_token.nil?
+      return nil
+    end
+
+    access_token
+  end
 end
