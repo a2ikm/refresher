@@ -1,0 +1,44 @@
+#!/usr/bin/env ruby
+
+require "json"
+require "net/http"
+require "uri"
+
+name = nil
+access_token = nil
+
+loop do
+  print "Enter your name: "
+  name = gets.chomp
+  print "Enter your password: "
+  password = gets.chomp
+
+  data = {name: name, password: password}
+  headers = {"content-type": "application/json"}
+  res = Net::HTTP.post(URI("http://localhost:3000/sessions"), data.to_json, headers)
+
+  case res
+  when Net::HTTPSuccess
+    data = JSON.parse(res.body)
+    name = data["name"]
+    access_token = data["access_token"]
+    break
+  when Net::HTTPClientError, Net::HTTPServerError
+    data = JSON.parse(res.body)
+    puts data["error"]
+    puts
+  else
+    puts "Unknown error: #{res.inspect}"
+    puts
+  end
+end
+
+loop do
+  print "#{name}> "
+  command = gets.chomp
+
+  case command
+  when "exit", "quit"
+    exit
+  end
+end
