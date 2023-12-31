@@ -13,6 +13,7 @@ loop do
   print "Enter your password: "
   password = gets.chomp
 
+  # TODO: Encapsulate HTTP client and response handling
   data = {name: name, password: password}
   headers = {"content-type": "application/json"}
   res = Net::HTTP.post(URI("http://localhost:3000/sessions"), data.to_json, headers)
@@ -41,6 +42,7 @@ loop do
   when "exit", "quit"
     exit
   when "me"
+    # TODO: Encapsulate HTTP client and response handling
     data = {}
     headers = { "content-type": "application/json", "authorization": "Bearer #{access_token}" }
     res = Net::HTTP.post(URI("http://localhost:3000/me"), data.to_json, headers)

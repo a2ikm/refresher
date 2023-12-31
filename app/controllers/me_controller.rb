@@ -27,6 +27,7 @@ class MeController < ApplicationController
       return
     end
 
+    # TODO: Encapsulate token verification and fetching user. These are not controller-like logic
     access_token = AccessToken.verify(token)
     if access_token.nil?
       render json: { error: "Invalid access token" }, status: 401
