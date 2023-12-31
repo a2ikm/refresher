@@ -1,9 +1,12 @@
 class Session < ApplicationRecord
   belongs_to :user
 
+  # TODO: This structure's name seems bad
   Result = Data.define(:name, :access_token)
 
   def self.start(name, password)
+    # TODO: Tell runtime errors and invalid request errors
+
     user = User.authenticate(name, password)
     if user.nil?
       raise "Invalid name or password"
