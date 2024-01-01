@@ -1,9 +1,19 @@
 class AccessToken < ApplicationRecord
+  EXPIRES_IN_SECONDS = 1.minute
+
   belongs_to :session
 
   def self.issue(session)
     begin
-      return AccessToken.create(session: session, token: SecureRandom.alphanumeric(32))
+      now = Time.zone.now
+
+      return AccessToken.create(
+        session: session,
+        token: SecureRandom.alphanumeric(32),
+        created_at: now,
+        updated_at: now,
+        expired_at: now + EXPIRES_IN_SECONDS,
+      )
     rescue ActiveRecord::RecordNotUnique
       retry
     end
