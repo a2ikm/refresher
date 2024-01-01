@@ -8,11 +8,7 @@ module Commands::StartSession
 
     user = Commands::Authenticate.run(name, password)
     session = Session.create!(user: user)
-
     access_token = AccessToken.issue(session)
-    if access_token.nil?
-      raise "Could not create access token"
-    end
 
     return Result.new(name: user.name, access_token: access_token.token)
   end
