@@ -7,11 +7,7 @@ module Commands::StartSession
     # TODO: Tell runtime errors and invalid request errors
 
     user = Commands::Authenticate.run(name, password)
-
-    session = Session.create(user: user)
-    if session.nil?
-      raise "Could not create session"
-    end
+    session = Session.create!(user: user)
 
     access_token = AccessToken.issue(session)
     if access_token.nil?
