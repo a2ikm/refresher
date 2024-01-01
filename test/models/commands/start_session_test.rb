@@ -1,24 +1,24 @@
 require "test_helper"
 
 class CommandsStartSessionTest < ActiveSupport::TestCase
-  test "raises RuntimeError for wrong name" do
+  test "raises Commands::Authenticate::Failed for wrong name" do
     user = User.create(name: "testuser", password: "testpassword", password_confirmation: "testpassword")
     sessions_count = Session.count
     access_token_count = AccessToken.count
 
-    assert_raises RuntimeError do
+    assert_raises Commands::Authenticate::Failed do
       Commands::StartSession.run("wrongname", "testpassword")
     end
     assert_equal sessions_count, Session.count
     assert_equal access_token_count, AccessToken.count
   end
 
-  test "raises RuntimeError for wrong password" do
+  test "raises Commands::Authenticate::Failed for wrong password" do
     user = User.create(name: "testuser", password: "testpassword", password_confirmation: "testpassword")
     sessions_count = Session.count
     access_token_count = AccessToken.count
 
-    assert_raises RuntimeError do
+    assert_raises Commands::Authenticate::Failed do
       Commands::StartSession.run("testuser", "wronpassword")
     end
     assert_equal sessions_count, Session.count
