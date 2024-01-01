@@ -29,4 +29,8 @@ class AccessToken < ApplicationRecord
 
     access_token
   end
+
+  def expired?
+    expired_at <= Time.zone.now
+  end
 end

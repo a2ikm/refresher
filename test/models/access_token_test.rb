@@ -14,4 +14,23 @@ class AccessTokenTest < ActiveSupport::TestCase
     assert_equal true, access_token.token.match?(/\A[a-zA-Z0-9]+\z/)
     assert_equal access_token.created_at + 1.minutes, access_token.expired_at
   end
+
+  test "expired? returns if AccessToken is expired or now" do
+    user = User.create(name: "testuser", password: "testpassword", password_confirmation: "testpassword")
+    session = Session.create(user: user)
+
+    access_token = AccessToken.issue(session)
+
+    travel_to(access_token.expired_at - 1.second, with_usec: true) do
+      assert_not access_token.expired?
+    end
+
+    travel_to(access_token.expired_at, with_usec: true) do
+      assert access_token.expired?
+    end
+
+    travel_to(access_token.expired_at + 1.second, with_usec: true) do
+      assert access_token.expired?
+    end
+  end
 end
