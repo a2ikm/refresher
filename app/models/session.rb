@@ -7,7 +7,7 @@ class Session < ApplicationRecord
   def self.start(name, password)
     # TODO: Tell runtime errors and invalid request errors
 
-    user = User.authenticate(name, password)
+    user = Commands::Authenticate.run(name, password)
     if user.nil?
       raise "Invalid name or password"
     end
