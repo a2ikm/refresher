@@ -25,7 +25,9 @@ class AccessToken < ApplicationRecord
       return nil
     end
 
-    # TODO: Implement expiration
+    if access_token.expired?
+      return nil
+    end
 
     access_token
   end
