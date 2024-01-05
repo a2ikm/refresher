@@ -1,6 +1,6 @@
 require "test_helper"
 
-class CreateSessionTest < ActionDispatch::IntegrationTest
+class StartSessionTest < ActionDispatch::IntegrationTest
   test "respond 400 if name parameter is not given" do
     post "/sessions", params: { name: nil, password: "testpassword" }
     assert_response :bad_request
