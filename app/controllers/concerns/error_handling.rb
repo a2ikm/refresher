@@ -6,15 +6,19 @@ module ErrorHandling
       render status: e.status, json: e.to_h
     end
 
-    rescue_from Commands::BaseError do |e|
+    around_action :translate_command_error_to_controller_error
+  end
+
+  private def translate_command_error_to_controller_error
+    begin
+      yield
+    rescue Commands::BaseError => e
       case e
-      when Commands::Authenticate::Failed
-        render status: 401, json: e.to_h
-      when Commands::RefreshSession::Failed
-        render status: 401, json: e.to_h
+      when Commands::Authenticate::Failed, Commands::RefreshSession::Failed
+        raise Errors::Unauthorized, e.message
       else
         Rails.logger.error "unexpected error: #{e.class.name}"
-        render status: 500, json: { error: "internal server error" }
+        raise e.message
       end
     end
   end
