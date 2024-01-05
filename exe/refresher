@@ -1,91 +1,6 @@
 #!/usr/bin/env ruby
 
-require "json"
-require "net/http"
-require "uri"
-
-class Login
-  def initialize(name, password)
-    @name = name
-    @password = password
-    @api_client = ApiClient.new
-  end
-
-  def run
-    data = { name: @name, password: @password }
-    headers = { "content-type": "application/json" }
-    res = @api_client.request(headers, :post, "/sessions", data)
-
-    case res
-    when ApiClient::SuccessResponse
-      Session.new(res.data["access_token"])
-    else
-      raise res.error
-    end
-  end
-end
-
-class Session
-  def initialize(access_token)
-    @access_token = access_token
-    @api_client = ApiClient.new
-  end
-
-  def show_me
-    post("/me", {})
-  end
-
-  private def get(path)
-    @api_client.request(build_headers, :get, path, nil)
-  end
-
-  private def post(path, data)
-    @api_client.request(build_headers, :post, path, data)
-  end
-
-  private def put(path, data)
-    @api_client.request(build_headers, :put, path, data)
-  end
-
-  private def delete(path, data)
-    @api_client.request(build_headers, :delete, path, data)
-  end
-
-  private def build_headers
-    { "content-type": "application/json", "authorization": "Bearer #{@access_token}" }
-  end
-end
-
-class ApiClient
-  SuccessResponse = Data.define(:data)
-  ErrorResponse = Data.define(:error)
-
-  def request(headers, method, path, data)
-    uri = URI("http://localhost:3000#{path}")
-
-    res = case method
-    when :get
-      Net::HTTP.get(uri, headers)
-    when :post
-      Net::HTTP.post(uri, data.to_json, headers)
-    when :put
-      Net::HTTP.put(uri, data.to_json, headers)
-    when :delete
-      Net::HTTP.delete(uri, data.to_json, headers)
-    else
-      raise ArgumentError, "unsupported method: #{method}"
-    end
-
-    case res
-    when Net::HTTPSuccess
-      SuccessResponse.new(JSON.parse(res.body))
-    when Net::HTTPClientError, Net::HTTPServerError
-      ErrorResponse.new(JSON.parse(res.body)["error"])
-    else
-      ErrorResponse.new("Unknown error: #{res.inspect}")
-    end
-  end
-end
+require_relative "../lib/refresher/client"
 
 name = nil
 session = nil
@@ -96,7 +11,7 @@ begin
   print "Enter your password: "
   password = gets.chomp
 
-  session = Login.new(name, password).run
+  session = Refresher::Client::Login.new(name, password).run
 rescue => e
   puts e.message
   puts
@@ -114,7 +29,7 @@ loop do
     res = session.show_me
 
     case res
-    when ApiClient::SuccessResponse
+    when Refresher::Client::ApiClient::SuccessResponse
       puts res.data
       puts
     else
