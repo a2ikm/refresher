@@ -4,33 +4,24 @@ require "json"
 require "net/http"
 require "uri"
 
-name = nil
-access_token = nil
+class Login
+  def initialize(name, password)
+    @name = name
+    @password = password
+    @api_client = ApiClient.new
+  end
 
-loop do
-  print "Enter your name: "
-  name = gets.chomp
-  print "Enter your password: "
-  password = gets.chomp
+  def run
+    data = { name: @name, password: @password }
+    headers = { "content-type": "application/json" }
+    res = @api_client.request(headers, :post, "/sessions", data)
 
-  # TODO: Encapsulate HTTP client and response handling
-  data = {name: name, password: password}
-  headers = {"content-type": "application/json"}
-  res = Net::HTTP.post(URI("http://localhost:3000/sessions"), data.to_json, headers)
-
-  case res
-  when Net::HTTPSuccess
-    data = JSON.parse(res.body)
-    name = data["name"]
-    access_token = data["access_token"]
-    break
-  when Net::HTTPClientError, Net::HTTPServerError
-    data = JSON.parse(res.body)
-    puts data["error"]
-    puts
-  else
-    puts "Unknown error: #{res.inspect}"
-    puts
+    case res
+    when ApiClient::SuccessResponse
+      Session.new(res.data["access_token"])
+    else
+      raise res.error
+    end
   end
 end
 
@@ -91,12 +82,26 @@ class ApiClient
     when Net::HTTPClientError, Net::HTTPServerError
       ErrorResponse.new(JSON.parse(res.body)["error"])
     else
-      raise "Unknown error: #{res.inspect}"
+      ErrorResponse.new("Unknown error: #{res.inspect}")
     end
   end
 end
 
-session = Session.new(access_token)
+name = nil
+session = nil
+
+begin
+  print "Enter your name: "
+  name = gets.chomp
+  print "Enter your password: "
+  password = gets.chomp
+
+  session = Login.new(name, password).run
+rescue => e
+  puts e.message
+  puts
+  retry
+end
 
 loop do
   print "#{name}> "
