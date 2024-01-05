@@ -6,7 +6,7 @@ class SessionsController < ApplicationController
     raise Errors::BadRequest, "password parameter is not given" if params[:password].nil?
 
     result = ActiveRecord::Base.transaction do
-      Session.start(params[:name], params[:password])
+      Commands::StartSession.run(params[:name], params[:password])
     end
 
     render json: result.to_h
