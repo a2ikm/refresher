@@ -15,7 +15,7 @@ class Refresher::Client::Login
 
     case res
     when Refresher::Client::ApiClient::SuccessResponse
-      Refresher::Client::Session.new(res.data["access_token"])
+      Refresher::Client::Session.new(res.data["access_token"], res.data["refresh_token"])
     else
       raise res.error
     end
