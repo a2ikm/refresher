@@ -15,12 +15,12 @@ class MeController < ApplicationController
   private def verify_access_token
     authorization = request.authorization
     if authorization.nil?
-      raise Errors::Unauthorized, "Authorization header is missing"
+      raise Errors::BadRequest, "Authorization header is missing"
     end
 
     kind, token = authorization.split(" ", 2)
     if kind.downcase != "bearer"
-      raise Errors::Unauthorized, "Authorization header must start with Bearer"
+      raise Errors::BadRequest, "Authorization header must start with Bearer"
     end
 
     # TODO: Encapsulate token verification and fetching user. These are not controller-like logic

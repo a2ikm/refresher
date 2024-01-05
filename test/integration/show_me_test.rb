@@ -1,18 +1,18 @@
 require "test_helper"
 
 class ShowMeTest < ActionDispatch::IntegrationTest
-  test "respond 401 if authorization header is not given" do
+  test "respond 400 if authorization header is not given" do
     post "/me", params: {}, headers: { "Authorization": nil }
-    assert_response :unauthorized
+    assert_response :bad_request
   end
 
-  test "respond 401 if authorization header does not start with Bearer" do
+  test "respond 400 if authorization header does not start with Bearer" do
     user = User.create(name: "testuser", password: "testpassword", password_confirmation: "testpassword")
     session = Session.create(user: user)
     access_token = AccessToken.issue(session)
 
     post "/me", params: {}, headers: { "Authorization": access_token.token }
-    assert_response :unauthorized
+    assert_response :bad_request
   end
 
   test "respond 401 if token in authorization header is wrong" do
