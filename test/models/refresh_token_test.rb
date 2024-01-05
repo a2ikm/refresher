@@ -19,6 +19,16 @@ class RefreshTokenTest < ActiveSupport::TestCase
     assert_nil RefreshToken.verify("unknowntoken")
   end
 
+  test "verify returns nil for invalidated token" do
+    user = User.create(name: "testuser", password: "testpassword", password_confirmation: "testpassword")
+    session = Session.create(user: user)
+
+    refresh_token = RefreshToken.issue(session)
+    refresh_token.invalidate!
+
+    assert_nil RefreshToken.verify(refresh_token.token)
+  end
+
   test "verify returns nil for expired token" do
     user = User.create(name: "testuser", password: "testpassword", password_confirmation: "testpassword")
     session = Session.create(user: user)

@@ -29,6 +29,10 @@ class RefreshToken < ApplicationRecord
       return nil
     end
 
+    if refresh_token.invalidated?
+      return nil
+    end
+
     refresh_token
   end
 
