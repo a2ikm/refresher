@@ -11,19 +11,23 @@ class Refresher::Client::Session
   end
 
   private def get(path)
-    @api_client.request(build_headers, :get, path, nil)
+    request(:get, path, nil)
   end
 
   private def post(path, data)
-    @api_client.request(build_headers, :post, path, data)
+    request(:post, path, data)
   end
 
   private def put(path, data)
-    @api_client.request(build_headers, :put, path, data)
+    request(:put, path, data)
   end
 
   private def delete(path, data)
-    @api_client.request(build_headers, :delete, path, data)
+    request(:delete, path, data)
+  end
+
+  private def request(method, path, data)
+    @api_client.request(build_headers, method, path, data)
   end
 
   private def build_headers
