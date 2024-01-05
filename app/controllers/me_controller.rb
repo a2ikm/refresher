@@ -1,6 +1,4 @@
 class MeController < ApplicationController
-  skip_forgery_protection
-
   before_action :verify_access_token
 
   def show
