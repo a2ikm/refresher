@@ -35,4 +35,12 @@ class RefreshToken < ApplicationRecord
   def expired?
     expired_at <= Time.zone.now
   end
+
+  def invalidate!
+    update!(invalidated_at: Time.zone.now)
+  end
+
+  def invalidated?
+    invalidated_at && invalidated_at <= Time.zone.now
+  end
 end

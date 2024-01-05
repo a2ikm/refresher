@@ -60,4 +60,16 @@ class RefreshTokenTest < ActiveSupport::TestCase
       assert refresh_token.expired?
     end
   end
+
+  test "invalidated? returns if RefreshToken is invalidated" do
+    user = User.create(name: "testuser", password: "testpassword", password_confirmation: "testpassword")
+    session = Session.create(user: user)
+
+    refresh_token = RefreshToken.issue(session)
+
+    assert_not refresh_token.invalidated?
+
+    refresh_token.invalidate!
+    assert refresh_token.invalidated?
+  end
 end
