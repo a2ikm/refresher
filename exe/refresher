@@ -1,40 +1,5 @@
 #!/usr/bin/env ruby
 
-require_relative "../lib/refresher/client"
+require_relative "../lib/refresher/cli"
 
-name = nil
-session = nil
-
-begin
-  print "Enter your name: "
-  name = gets.chomp
-  print "Enter your password: "
-  password = gets.chomp
-
-  session = Refresher::Client::Login.new(name, password).run
-rescue => e
-  puts e.message
-  puts
-  retry
-end
-
-loop do
-  print "#{name}> "
-  command = gets.chomp
-
-  case command
-  when "exit", "quit"
-    exit
-  when "me"
-    res = session.show_me
-
-    case res
-    when Refresher::Client::ApiClient::SuccessResponse
-      puts res.data
-      puts
-    else
-      puts res.error
-      puts
-    end
-  end
-end
+Refresher::CLI.new.start
