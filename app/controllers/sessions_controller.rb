@@ -9,4 +9,14 @@ class SessionsController < ApplicationController
 
     render json: result.to_h
   end
+
+  def refresh
+    raise Errors::BadRequest, "token parameter is not given" if params[:token].nil?
+
+    result = ActiveRecord::Base.transaction do
+      Commands::RefreshSession.run(params[:token])
+    end
+
+    render json: result.to_h
+  end
 end

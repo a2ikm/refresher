@@ -10,6 +10,8 @@ module ErrorHandling
       case e
       when Commands::Authenticate::Failed
         render status: 401, json: e.to_h
+      when Commands::RefreshSession::Failed
+        render status: 401, json: e.to_h
       else
         Rails.logger.error "unexpected error: #{e.class.name}"
         render status: 500, json: { error: "internal server error" }
