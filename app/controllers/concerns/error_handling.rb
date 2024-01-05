@@ -31,5 +31,9 @@ module ErrorHandling
     class BadRequest < Base
       def status; 400; end
     end
+
+    class Unauthorized < Base
+      def status; 401; end
+    end
   end
 end
