@@ -34,6 +34,64 @@ loop do
   end
 end
 
+class ApiClient
+  SuccessResponse = Data.define(:data)
+  ErrorResponse = Data.define(:error)
+
+  def initialize(access_token)
+    @access_token = access_token
+  end
+
+  def show_me
+    post("/me", {})
+  end
+
+  private def get(path)
+    request(:get, path, nil)
+  end
+
+  private def post(path, data)
+    request(:post, path, data)
+  end
+
+  private def put(path, data)
+    request(:put, path, data)
+  end
+
+  private def delete(path, data)
+    request(:delete, path, data)
+  end
+
+  private def request(method, path, data)
+    uri = URI("http://localhost:3000#{path}")
+    headers = { "content-type": "application/json", "authorization": "Bearer #{@access_token}" }
+
+    res = case method
+    when :get
+      Net::HTTP.get(uri, headers)
+    when :post
+      Net::HTTP.post(uri, data.to_json, headers)
+    when :put
+      Net::HTTP.put(uri, data.to_json, headers)
+    when :delete
+      Net::HTTP.delete(uri, data.to_json, headers)
+    else
+      raise ArgumentError, "unsupported method: #{method}"
+    end
+
+    case res
+    when Net::HTTPSuccess
+      SuccessResponse.new(JSON.parse(res.body))
+    when Net::HTTPClientError, Net::HTTPServerError
+      ErrorResponse.new(JSON.parse(res.body)["error"])
+    else
+      raise "Unknown error: #{res.inspect}"
+    end
+  end
+end
+
+client = ApiClient.new(access_token)
+
 loop do
   print "#{name}> "
   command = gets.chomp
@@ -42,22 +100,14 @@ loop do
   when "exit", "quit"
     exit
   when "me"
-    # TODO: Encapsulate HTTP client and response handling
-    data = {}
-    headers = { "content-type": "application/json", "authorization": "Bearer #{access_token}" }
-    res = Net::HTTP.post(URI("http://localhost:3000/me"), data.to_json, headers)
+    res = client.show_me
 
     case res
-    when Net::HTTPSuccess
-      data = JSON.parse(res.body)
-      puts data
-      puts
-    when Net::HTTPClientError, Net::HTTPServerError
-      data = JSON.parse(res.body)
-      puts data["error"]
+    when ApiClient::SuccessResponse
+      puts res.data
       puts
     else
-      puts "Unknown error: #{res.inspect}"
+      puts res.error
       puts
     end
   end
