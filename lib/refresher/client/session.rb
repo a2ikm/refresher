@@ -1,6 +1,12 @@
 require_relative "./api_client"
 
 class Refresher::Client::Session
+  class RefreshFailed < StandardError
+  end
+
+  class InternalRetry < StandardError
+  end
+
   def initialize(access_token, refresh_token)
     @access_token = access_token
     @refresh_token = refresh_token
@@ -49,6 +55,26 @@ class Refresher::Client::Session
   end
 
   private def refresh
-    # TODO: refresh and update @access_token and @refresh_token
+    headers = { "content-type": "application/json" }
+    data = { token: @refresh_token }
+
+    begin
+      res = @api_client.request(headers, :post, "/sessions/refresh", data)
+
+      case res
+      when Refresher::Client::ApiClient::SuccessResponse
+        @access_token = res.data["access_token"]
+        @refresh_token = res.data["refresh_token"]
+      when Refresher::Client::ApiClient::UnauthorizedResponse
+        raise RefreshFailed, res.error
+      when Refresher::Client::ApiClient::ErrorResponse
+        $stderr.puts res.error
+        raise InternalRetry
+      else
+        raise "unexpected result: #{res}"
+      end
+    rescue InternalRetry
+      retry
+    end
   end
 end
