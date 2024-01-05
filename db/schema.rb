@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_01_05_125443) do
+ActiveRecord::Schema[7.1].define(version: 2024_01_05_141916) do
   create_table "access_tokens", force: :cascade do |t|
     t.integer "session_id", null: false
     t.string "token", null: false
@@ -27,6 +27,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_01_05_125443) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.datetime "expired_at", null: false
+    t.datetime "invalidated_at"
     t.index ["session_id"], name: "index_refresh_tokens_on_session_id"
     t.index ["token"], name: "index_refresh_tokens_on_token", unique: true
   end
