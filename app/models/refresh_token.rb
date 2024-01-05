@@ -45,6 +45,6 @@ class RefreshToken < ApplicationRecord
   end
 
   def invalidated?
-    invalidated_at && invalidated_at <= Time.zone.now
+    !!invalidated_at && invalidated_at <= Time.zone.now
   end
 end
