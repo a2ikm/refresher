@@ -39,13 +39,11 @@ class Refresher::Client::Session
 
       if res.is_a?(Refresher::Client::ApiClient::UnauthorizedResponse)
         refresh
-
-        # NOTE: raise exception to retry
-        raise
+        raise InternalRetry
       end
 
       res
-    rescue
+    rescue InternalRetry
       retry
     end
   end
